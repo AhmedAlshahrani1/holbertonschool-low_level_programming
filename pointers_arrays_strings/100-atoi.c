@@ -21,7 +21,7 @@ while (s[i] != '\0')
 	}
 	if (s[i] >= '0' && s[i] <= '9')
 	{
-		res = (res * 10) + (s[i] + '0');
+		res = (res * 10) + (s[i] - '0');
 		started = 1;
 	}
 	else if (started == 1)
