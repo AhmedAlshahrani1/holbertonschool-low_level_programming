@@ -3,8 +3,32 @@
 #include <stdlib.h>
 
 /**
- * close_file - Closes file descriptors.
- * @fd: The file descriptor to be closed.
+ * check_err - checks if files can be opened
+ * @file_from: file descriptor of the source file
+ * @file_to: file descriptor of the destination file
+ * @argv: arguments vector
+ *
+ * Return: void
+ */
+void check_err(int file_from, int file_to, char *argv[])
+{
+	if (file_from == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		exit(98);
+	}
+	if (file_to == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
+		exit(99);
+	}
+}
+
+/**
+ * close_file - closes file descriptors
+ * @fd: the file descriptor to be closed
+ *
+ * Return: void
  */
 void close_file(int fd)
 {
@@ -19,11 +43,11 @@ void close_file(int fd)
 }
 
 /**
- * main - Copies the contents of a file to another file.
- * @argc: The number of arguments.
- * @argv: An array of pointers to the arguments.
+ * main - copies the content of a file to another file
+ * @argc: number of arguments passed to the program
+ * @argv: array of pointers to the arguments
  *
- * Return: 0 on success.
+ * Return: 0 on success
  */
 int main(int argc, char *argv[])
 {
@@ -37,34 +61,19 @@ int main(int argc, char *argv[])
 	}
 
 	fd_from = open(argv[1], O_RDONLY);
-	if (fd_from == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
-		exit(98);
-	}
-
 	fd_to = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
-	if (fd_to == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
-		exit(99);
-	}
+	check_err(fd_from, fd_to, argv);
 
 	r = 1024;
 	while (r == 1024)
 	{
 		r = read(fd_from, buf, 1024);
 		if (r == -1)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
-			exit(98);
-		}
+			check_err(-1, 0, argv);
+
 		w = write(fd_to, buf, r);
 		if (w == -1 || w != r)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
-			exit(99);
-		}
+			check_err(0, -1, argv);
 	}
 
 	close_file(fd_from);
